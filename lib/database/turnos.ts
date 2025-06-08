@@ -113,6 +113,7 @@ export const addTurno = async (turnoData: Omit<Turno, 'id' | 'createdAt'>): Prom
         tipo_consulta: turnoData.tipoConsulta,
         estado: turnoData.estado,
         notas: turnoData.notas,
+        seguimiento: turnoData.seguimiento,
         precio: turnoData.precio,
       })
       .select()
@@ -139,6 +140,7 @@ export const updateTurno = async (id: string, updates: Partial<Omit<Turno, 'id' 
     if (updates.tipoConsulta) updateData.tipo_consulta = updates.tipoConsulta;
     if (updates.estado) updateData.estado = updates.estado;
     if (updates.notas !== undefined) updateData.notas = updates.notas;
+    if (updates.seguimiento !== undefined) updateData.seguimiento = updates.seguimiento;
     if (updates.precio !== undefined) updateData.precio = updates.precio;
 
     const { data, error } = await supabase

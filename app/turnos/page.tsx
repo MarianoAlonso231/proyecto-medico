@@ -40,7 +40,10 @@ import {
   MapPin,
   DollarSign,
   TrendingUp,
-  CalendarDays
+  CalendarDays,
+  FileText,
+  Stethoscope,
+  Pill
 } from 'lucide-react';
 import { format, addDays, subDays, startOfWeek, endOfWeek, isSameDay } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -49,6 +52,8 @@ import { es } from 'date-fns/locale';
 import { TurnoForm } from '@/components/turnos/TurnoForm';
 // Componente para vista detallada del turno
 import { TurnoDetails } from '@/components/turnos/TurnoDetails';
+// Componente para notas y seguimiento
+import { NotasYSeguimiento } from '@/components/turnos/NotasYSeguimiento';
 
 const ESTADOS_TURNO: { value: EstadoTurno; label: string; color: string }[] = [
   { value: 'programado', label: 'Programado', color: 'bg-blue-100 text-blue-800' },
@@ -69,6 +74,7 @@ export default function TurnosPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const [isSeguimientoDialogOpen, setIsSeguimientoDialogOpen] = useState(false);
   const [filterEstado, setFilterEstado] = useState<EstadoTurno | 'todos'>('todos');
   const [estadisticas, setEstadisticas] = useState<any>(null);
   const { toast } = useToast();
@@ -170,6 +176,7 @@ export default function TurnosPage() {
   const handleTurnoUpdated = (turnoActualizado: Turno) => {
     setTurnos(prev => prev.map(t => t.id === turnoActualizado.id ? turnoActualizado : t));
     setIsEditDialogOpen(false);
+    setIsSeguimientoDialogOpen(false);
     setSelectedTurno(null);
     toast({
       title: 'Turno actualizado',
@@ -214,7 +221,7 @@ export default function TurnosPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Gestión de Turnos</h1>
+          <h1 className="text-3xl font-bold">Gestión de Visitas</h1>
           <p className="text-muted-foreground">
             Administra citas, horarios y estados de consultas
           </p>
@@ -494,6 +501,18 @@ export default function TurnosPage() {
                             <Badge className={getEstadoColor(turno.estado)}>
                               {getEstadoLabel(turno.estado)}
                             </Badge>
+                            {turno.notas && (
+                              <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-300">
+                                <Stethoscope className="h-3 w-3 mr-1" />
+                                Con Notas
+                              </Badge>
+                            )}
+                            {turno.seguimiento && (
+                              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
+                                <Pill className="h-3 w-3 mr-1" />
+                                Con Seguimiento
+                              </Badge>
+                            )}
                           </div>
                           
                           <div className="flex items-center gap-2 mb-1">
@@ -526,10 +545,31 @@ export default function TurnosPage() {
                             </span>
                           </div>
                           
-                          {turno.notas && (
-                            <p className="text-sm text-muted-foreground mt-2">
-                              <strong>Notas:</strong> {turno.notas}
-                            </p>
+                          {(turno.notas || turno.seguimiento) && (
+                            <div className="mt-3 space-y-2">
+                              {turno.notas && (
+                                <div className="p-3 bg-orange-50 border-l-4 border-orange-400 rounded-md">
+                                  <div className="flex items-start gap-2">
+                                    <Stethoscope className="h-4 w-4 text-orange-600 mt-0.5" />
+                                    <div>
+                                      <p className="text-sm font-medium text-orange-800">Notas:</p>
+                                      <p className="text-sm text-orange-700 mt-1">{turno.notas}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                              {turno.seguimiento && (
+                                <div className="p-3 bg-blue-50 border-l-4 border-blue-400 rounded-md">
+                                  <div className="flex items-start gap-2">
+                                    <Pill className="h-4 w-4 text-blue-600 mt-0.5" />
+                                    <div>
+                                      <p className="text-sm font-medium text-blue-800">Seguimiento:</p>
+                                      <p className="text-sm text-blue-700 mt-1">{turno.seguimiento}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           )}
                         </div>
                         
@@ -557,6 +597,15 @@ export default function TurnosPage() {
                             >
                               <Edit className="h-4 w-4 mr-2" />
                               Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setSelectedTurno(turno);
+                                setIsSeguimientoDialogOpen(true);
+                              }}
+                            >
+                              <FileText className="h-4 w-4 mr-2" />
+                              Agregar Seguimiento
                             </DropdownMenuItem>
                             {turno.estado === 'programado' && (
                               <DropdownMenuItem
@@ -708,6 +757,23 @@ export default function TurnosPage() {
               turno={selectedTurno}
               paciente={getPaciente(selectedTurno.pacienteId)}
               onEstadoChange={(nuevoEstado) => handleChangeEstado(selectedTurno, nuevoEstado)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isSeguimientoDialogOpen} onOpenChange={setIsSeguimientoDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Notas y Seguimiento</DialogTitle>
+            <DialogDescription>
+              Gestione las notas del paciente y el seguimiento médico
+            </DialogDescription>
+          </DialogHeader>
+          {selectedTurno && (
+            <NotasYSeguimiento 
+              turno={selectedTurno}
+              onSuccess={handleTurnoUpdated}
             />
           )}
         </DialogContent>

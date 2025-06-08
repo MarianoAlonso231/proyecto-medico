@@ -22,6 +22,7 @@ export interface Turno {
   tipoConsulta: 'primera_vez' | 'control' | 'seguimiento';
   estado: 'programado' | 'confirmado' | 'completado' | 'cancelado' | 'no_asistio';
   notas: string;
+  seguimiento: string;
   precio: number;
   createdAt: string;
 }

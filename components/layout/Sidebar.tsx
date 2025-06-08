@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
-  { name: 'Turnos', href: '/turnos', icon: Calendar },
+  { name: 'Visitas', href: '/turnos', icon: Calendar },
   { name: 'Pacientes', href: '/pacientes', icon: Users },
   { name: 'Configuración', href: '/configuracion', icon: Settings },
 ];

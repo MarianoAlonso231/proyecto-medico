@@ -31,6 +31,7 @@ export interface DatabaseTurno {
   tipo_consulta: 'primera_vez' | 'control' | 'seguimiento';
   estado: 'programado' | 'confirmado' | 'completado' | 'cancelado' | 'no_asistio';
   notas: string;
+  seguimiento: string;
   precio: number;
   created_at: string;
   updated_at: string;
@@ -80,6 +81,7 @@ export const mapTurnoFromDB = (dbTurno: DatabaseTurno) => ({
   tipoConsulta: dbTurno.tipo_consulta,
   estado: dbTurno.estado,
   notas: dbTurno.notas,
+  seguimiento: dbTurno.seguimiento,
   precio: dbTurno.precio,
   createdAt: dbTurno.created_at,
 });
